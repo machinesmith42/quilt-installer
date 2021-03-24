@@ -60,7 +60,7 @@ tasks.shadowJar {
 	relocate("org.quiltmc.lib.gson", "org.quiltmc.installer.lib.gson")
 	minimize()
 
-	// Compiler does not know which set method we are targetting with null value
+	// Compiler does not know which set method we are targeting with null value
 	val classifier: String? = null;
 	archiveClassifier.set(classifier)
 }

@@ -1,6 +1,9 @@
+import java.net.URI
+
 plugins {
 	java
 	`java-library`
+	`maven-publish`
 	// application
 
 	id("net.kyori.blossom") version "1.1.0"
@@ -67,4 +70,59 @@ tasks.shadowJar {
 
 tasks.build {
 	dependsOn(tasks.shadowJar)
+}
+
+val copyForNative = tasks.register<Copy>("copyForNative") {
+	dependsOn(tasks.jar)
+	from(tasks.jar)
+	into(file("build"))
+
+	rename {
+		return@rename if (it.contains("quilt-installer")) {
+			"native-quilt-installer.jar"
+		} else {
+			it
+		}
+	}
+}
+
+tasks.publish {
+	mustRunAfter(copyForNative)
+}
+
+val env = System.getenv()
+
+publishing {
+	publications {
+		if (env["TARGET"] != null) {
+			create<MavenPublication>("mavenJava") {
+				from(components["java"])
+			}
+		} else {
+			// TODO: When we build macOS make this work
+			val architecture = env["TARGET"]
+			create<MavenPublication>("mavenNatives") {
+				groupId = "org.quiltmc.quilt-installer-native-bootstrap"
+				artifactId = "windows-$architecture"
+
+				artifact {
+					file("$projectDir/native/target/$architecture-pc-windosw-msvc/release/")
+				}
+			}
+		}
+	}
+
+	repositories {
+		// mavenLocal()
+		if (env["MAVEN_URL"] != null) {
+			repositories.maven {
+				url = URI(env["MAVEN_URL"]!!)
+
+				credentials {
+					username = env["MAVEN_USERNAME"]
+					password = env["MAVEN_PASSWORD"]
+				}
+			}
+		}
+	}
 }

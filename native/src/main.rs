@@ -27,8 +27,8 @@ use std::process::{exit, Command};
 const INSTALLER_LAST_RESORT_URL: &'static str = "https://quiltmc.org/"; // TODO: Fill in URL
 const OS_ISSUES_URL: &'static str = "https://quiltmc.org/"; // TODO: Fill in URL
 
-/// The bundled installer jar, see main entrypoint for why we do this.
-const INSTALLER_JAR: &'static [u8] = include_bytes!("native-quilt-installer.jar");
+/// The bundled installer jar, see main entrypoint for why we include the bytes of the installer jar.
+const INSTALLER_JAR: &'static [u8] = include_bytes!("../../build/native-quilt-installer.jar");
 
 // TODO: Some things to do in the future
 //  Error dialog localization, possibly this for getting the OS's locale? https://github.com/i509VCB/os-locale
@@ -37,7 +37,7 @@ fn main() {
 	//
 	// So we need to setup the jar file for this native installer launcher to actually launch.
 	// We could just append the jar file to the end of the executable, but that abuses windows
-	// specific logic as macOS would need something different on macOS since applications are really
+	// specific logic and macOS would need something different on macOS since applications are really
 	// fancy directories.
 	//
 	// Even if we could fulfill the above, `std::env::args(_os)` is not safe since the executable name
@@ -45,7 +45,7 @@ fn main() {
 	//
 	// Exhibit A of above case: https://vulners.com/securityvulns/SECURITYVULNS:DOC:22183
 	//
-	// So we will be prudent and bundle the bytes of the installer jar right into the binary and copy it to a temporary file at runtime.
+	// We will be prudent and bundle the bytes of the installer jar right into the binary and copy it to a temporary file at runtime.
 
 	// Generate a randomish file name so we can write the bundled jar to it for launching.
 	let mut installer_jar_name = random::<u32>().to_string();
@@ -53,9 +53,9 @@ fn main() {
 
 	let installer_jar = temp_dir().join(installer_jar_name);
 
-	// We have a scope here to drop the file writer
+	// Scope here will drop the file writer
 	{
-		let mut installer_jar = match File::create(installer_jar) {
+		let mut installer_jar = match File::create(installer_jar.clone()) {
 			Ok(f) => f,
 			Err(_) => {
 				panic!()
@@ -72,14 +72,11 @@ fn main() {
 		}
 	}
 
-	match get_jre_locations() {
-		Ok(possible_jres) => {
-			// Let's try some of the JREs we got
-			for jre in possible_jres {
-				try_launch(&installer_jar, jre);
-			}
+	if let Ok(possible_jres) = get_jre_locations() {
+		// Let's try some of the JREs we got
+		for jre in possible_jres {
+			try_launch(&installer_jar, jre);
 		}
-		_ => {}
 	}
 
 	// Well time for the last resort by testing the system's `javaw` executable.
@@ -151,7 +148,7 @@ fn try_launch<P: AsRef<Path>>(installer_jar: &PathBuf, jre_path: P) -> JreLaunch
 		Err(e) => return JreLaunchError::Io(e),
 	}
 
-	// We have successfully run -version, so now we launch the installer
+	// We have successfully run -version, so now we launch the installer.
 	let result = Command::new(jre_path.as_ref())
 		.arg("-jar")
 		.arg(installer_jar.as_os_str())

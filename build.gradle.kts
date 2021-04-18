@@ -91,10 +91,6 @@ val copyForNative = tasks.register<Copy>("copyForNative") {
 	}
 }
 
-tasks.publish {
-	mustRunAfter(copyForNative)
-}
-
 val env = System.getenv()
 
 publishing {
@@ -118,8 +114,6 @@ publishing {
 	}
 
 	repositories {
-		// mavenLocal()
-
 		if (env["MAVEN_URL"] != null) {
 			repositories.maven {
 				url = URI(env["MAVEN_URL"]!!)

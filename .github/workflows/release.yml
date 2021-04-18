@@ -23,6 +23,7 @@ jobs:
       # TODO: Fix macOS in future
       - uses: actions/checkout@v2
       - run: rustup target add ${{ matrix.target }}-pc-windows-msvc
+      - run: gradlew build copyForNative
       - name: Run Cargo
         run: cargo build --release --target ${{ matrix.target }}-pc-windows-msvc
         working-directory: ./native

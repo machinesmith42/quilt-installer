@@ -111,7 +111,7 @@ publishing {
 				artifactId = "windows-$architecture"
 
 				artifact {
-					file("$projectDir/native/target/$architecture-pc-windosw-msvc/release/")
+					file("$projectDir/native/target/$architecture-pc-windows-msvc/release/")
 				}
 			}
 		}
@@ -119,6 +119,7 @@ publishing {
 
 	repositories {
 		// mavenLocal()
+
 		if (env["MAVEN_URL"] != null) {
 			repositories.maven {
 				url = URI(env["MAVEN_URL"]!!)

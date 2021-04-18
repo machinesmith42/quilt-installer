@@ -23,7 +23,9 @@ jobs:
       # TODO: Fix macOS in future
       - uses: actions/checkout@v2
       - run: rustup target add ${{ matrix.target }}-pc-windows-msvc
-      - run: cargo build --release --target ${{ matrix.target }}-pc-windows-msvc
+      - name: Run Cargo
+      run: cargo build --release --target ${{ matrix.target }}-pc-windows-msvc
+      working-directory: ./native
       - uses: actions/upload-artifact@v2
         with:
           name: Artifacts ${{ matrix.target }}

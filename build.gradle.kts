@@ -40,7 +40,12 @@ blossom {
 }
 
 tasks.compileJava {
-	options.release.set(8)
+	if (JavaVersion.current().isJava9Compatible) {
+		options.release.set(8)
+	} else {
+		java.sourceCompatibility = JavaVersion.VERSION_1_8
+		java.targetCompatibility = JavaVersion.VERSION_1_8
+	}
 }
 
 // Cannot use application for the time being because shadow does not like mainClass being set for some reason.

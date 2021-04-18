@@ -99,7 +99,7 @@ val env = System.getenv()
 
 publishing {
 	publications {
-		if (env["TARGET"] != null) {
+		if (env["TARGET"] == null) {
 			create<MavenPublication>("mavenJava") {
 				from(components["java"])
 			}

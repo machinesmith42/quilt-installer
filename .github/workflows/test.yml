@@ -35,7 +35,6 @@ jobs:
       - name: Run Cargo
         run: cargo check --target ${{ matrix.target }}-pc-windows-msvc
         working-directory: ./native
-      - name: Upload a Build Artifact
       - uses: actions/upload-artifact@v2.2.4
         with:
           name: build-artifacts

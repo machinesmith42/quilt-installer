@@ -32,7 +32,7 @@ jobs:
         run: cargo check --target ${{ matrix.target }}-pc-windows-msvc
         working-directory: ./native
       - name: Upload build artifacts
-      uses: actions/upload-artifact@v1
-      with:
+        uses: actions/upload-artifact@v1
+        with:
         name: build-artifacts
         path: build/libs
